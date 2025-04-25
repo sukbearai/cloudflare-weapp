@@ -1,4 +1,4 @@
 export default defineEventHandler(async () => {
-  const token = await $fetch('/api/token')
-  return { token }
+  const text = await $fetch('/api/test')
+  return text
 })
