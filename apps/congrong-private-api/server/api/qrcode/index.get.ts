@@ -55,8 +55,9 @@ export default defineEventHandler(async (event) => {
     // 提取验证后的数据
     const validatedData = validationResult.data
 
-    // 1. 调用 token API 获取 access_token
-    const tokenResponse = await $fetch<TokenResponse>('https://shebei.congrongtech.cn/api/token')
+    // 1. 调用本地 token API 获取 access_token
+    const tokenApiResponse = await fetch('https://shebei.congrongtech.cn/api/token')
+    const tokenResponse = await tokenApiResponse.json() as TokenResponse
 
     // 验证 token 响应
     if (!tokenResponse || !tokenResponse.data || !tokenResponse.data.access_token) {
