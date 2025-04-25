@@ -2,14 +2,15 @@ import type { WechatApiError } from '../../../types'
 import { Buffer } from 'node:buffer'
 import { z } from 'zod'
 
-interface TokenResponse {
-  data: {
-    access_token: string
-    expires_in: number
-    from_cache?: boolean
+// 申明 H3 扩展类型，让 TypeScript 识别我们添加的 context 字段
+declare module 'h3' {
+  interface H3EventContext {
+    wechatToken?: {
+      access_token: string
+      expires_in: number
+      from_cache: boolean
+    }
   }
-  message: string
-  code: number
 }
 
 const QrcodeRequestSchema = z.object({
@@ -55,18 +56,14 @@ export default defineEventHandler(async (event) => {
     // 提取验证后的数据
     const validatedData = validationResult.data
 
-    // 1. 调用本地 token API 获取 access_token
-    const tokenApiResponse = await fetch('https://shebei.congrongtech.cn/api/token')
-    const tokenResponse = await tokenApiResponse.json() as TokenResponse
-
-    // 验证 token 响应
-    if (!tokenResponse || !tokenResponse.data || !tokenResponse.data.access_token) {
+    // 从 event.context 获取微信 token
+    if (!event.context.wechatToken || !event.context.wechatToken.access_token) {
       return createErrorResponse('无法获取微信 access_token', 500)
     }
 
-    const accessToken = tokenResponse.data.access_token
+    const accessToken = event.context.wechatToken.access_token
 
-    // 2. 使用 token 调用微信接口生成小程序码
+    // 使用 token 调用微信接口生成小程序码
     const url = `https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`
 
     const requestData = {
@@ -108,6 +105,7 @@ export default defineEventHandler(async (event) => {
     setResponseHeader(event, 'Content-Type', 'image/png')
 
     // 返回二进制数据
+
     return Buffer.from(imageBuffer)
   }
   catch (error) {
