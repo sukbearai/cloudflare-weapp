@@ -46,24 +46,6 @@ onShow(() => {
 
 const form = ref()
 
-// 获取用户昵称
-function getNickname() {
-  // 模拟获取用户昵称
-  uni.getUserProfile({
-    desc: '用于完善用户资料',
-    success: (res) => {
-      const userInfo = res.userInfo
-      model.nickname = userInfo.nickName
-      // 保存到store中
-      infoStore.setNickname(userInfo.nickName)
-      showSuccess({ msg: '获取昵称成功' })
-    },
-    fail: () => {
-      uni.showToast({ title: '获取昵称失败', icon: 'none' })
-    },
-  })
-}
-
 // 获取用户手机号
 async function getPhoneNumber(e: { code: string, errMsg: string }) {
   try {
