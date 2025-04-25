@@ -91,6 +91,7 @@ function handleSubmit() {
   form.value
     .validate()
     .then(({ valid, errors }: { valid: unknown, errors: unknown }) => {
+      console.log(valid, errors)
       if (valid) {
         // 提交时同时保存到store
         infoStore.setUserInfo({
@@ -120,7 +121,7 @@ function handleSubmit() {
           v-model="model.nickname"
           label="名字"
           label-width="100px"
-          prop="value1"
+          prop="nickname"
           clearable
           placeholder="请输入名字"
           :rules="[{ required: true, message: '请输入名字' }]"
@@ -135,14 +136,14 @@ function handleSubmit() {
           v-model="model.phone"
           label="手机号"
           label-width="100px"
-          prop="value2"
+          prop="phone"
           clearable
           placeholder="请获取手机号"
           :rules="[{ required: true, message: '请获取手机号' }]"
           disabled
         >
           <template #suffix>
-            <wd-button size="small" type="primary" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
+            <wd-button size="small" type="primary" open-type="getPhoneNumber" :disabled="!!model.phone" @getphonenumber="getPhoneNumber">
               点击获取号码
             </wd-button>
           </template>
