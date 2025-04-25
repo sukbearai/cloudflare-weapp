@@ -10,7 +10,7 @@ const infoStore = useInfoStore()
 const wxService = useWxService()
 const wxStore = useWxStore()
 const thirdPartyService = useThirdPartyService()
-const { success: showSuccess, error: showError, loading: showLoading, close: closeLoading } = useToast()
+const { success: showSuccess, error: showError } = useToast()
 const submitting = ref(false)
 
 onLoad((query) => {
@@ -105,12 +105,8 @@ async function getPhoneNumber(e: any) {
       return
     }
 
-    uni.showLoading({ title: '获取手机号中...' })
-
     // 调用服务端API获取手机号，如果有openid可以一并传递
     const res = await wxService.getPhoneNumber(code, wxStore.getOpenid())
-
-    uni.hideLoading()
 
     if (res.phoneNumber) {
       // 仅使用不含国家代码的手机号
@@ -123,7 +119,6 @@ async function getPhoneNumber(e: any) {
     }
   }
   catch (error: any) {
-    uni.hideLoading()
     console.error('获取手机号出错:', error)
   }
 }
@@ -159,7 +154,7 @@ async function handleSubmit() {
           }
 
           // 显示加载提示
-          showLoading({ msg: '提交中...' })
+          // showLoading({ msg: '提交中...' })
 
           // 提交表单到第三方接口
           await thirdPartyService.submitHuatuoForm({
@@ -170,7 +165,7 @@ async function handleSubmit() {
             unionId: wxStore.loginInfo.unionid || openid, // 如果没有unionid则使用openid
           })
 
-          closeLoading()
+          // closeLoading()
 
           showSuccess({ msg: '表单提交成功' })
           // 这里可以添加提交成功后的跳转

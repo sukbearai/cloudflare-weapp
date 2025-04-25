@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 返回成功响应
-    return createSuccessResponse(responseData.value, '表单提交成功')
+    return createSuccessResponse(responseData.success, '表单提交成功')
   }
   catch (error) {
     return createErrorResponse(
