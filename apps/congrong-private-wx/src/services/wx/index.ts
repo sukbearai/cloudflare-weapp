@@ -22,6 +22,7 @@ export function getPhoneNumber(code: string, openid?: string) {
 export function wxLogin(code: string) {
   return request.Post<WxLoginResponse>('/api/wx-login', {
     code,
+    ignore: true,
   })
 }
 
