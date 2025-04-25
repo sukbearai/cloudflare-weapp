@@ -1,4 +1,6 @@
-export default defineEventHandler(async () => {
-  const text = await $fetch('/api/test')
-  return text
+/* eslint-disable ts/no-unused-vars */
+export default defineEventHandler(async (event) => {
+  const data = await $fetch('/api/test')
+
+  return data
 })
