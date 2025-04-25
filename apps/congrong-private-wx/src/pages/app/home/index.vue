@@ -1,9 +1,12 @@
 <script lang="ts" setup>
+import { useWxService } from '@/services/wx'
 import { useInfoStore } from '@/stores/useInfo'
 import { useToast } from 'wot-design-uni'
 
 const deviceId = ref('')
 const infoStore = useInfoStore()
+const wxService = useWxService()
+const { success: showSuccess, error: showError } = useToast()
 
 onLoad((query) => {
   const scene = decodeURIComponent(query?.scene)
@@ -41,18 +44,65 @@ onShow(() => {
   }
 })
 
-const { success: showSuccess } = useToast()
-
 const form = ref()
 
 // 获取用户昵称
-function onGetUserInfo(e: unknown) {
-  console.log('用户信息', e)
+function getNickname() {
+  // 模拟获取用户昵称
+  uni.getUserProfile({
+    desc: '用于完善用户资料',
+    success: (res) => {
+      const userInfo = res.userInfo
+      model.nickname = userInfo.nickName
+      // 保存到store中
+      infoStore.setNickname(userInfo.nickName)
+      showSuccess({ msg: '获取昵称成功' })
+    },
+    fail: () => {
+      uni.showToast({ title: '获取昵称失败', icon: 'none' })
+    },
+  })
 }
 
 // 获取用户手机号
-function onGetPhoneNumber(e: unknown) {
-  console.log('手机号', e)
+async function getPhoneNumber(e: { code: string, errMsg: string }) {
+  try {
+    if (e.errMsg !== 'getPhoneNumber:ok') {
+      showError({ msg: '用户拒绝授权获取手机号' })
+      return
+    }
+
+    const code = e.code
+    if (!code) {
+      showError({ msg: '获取授权码失败' })
+      return
+    }
+
+    uni.showLoading({ title: '获取手机号中...' })
+
+    // 调用服务端API获取手机号
+    const res = await wxService.getPhoneNumber(code)
+
+    uni.hideLoading()
+
+    if (res.phoneNumber) {
+      // 仅使用不含国家代码的手机号
+      const phone = res.purePhoneNumber
+      model.phone = phone
+
+      // 保存到store中
+      infoStore.setPhoneNumber(phone)
+      showSuccess({ msg: '获取手机号成功' })
+    }
+    else {
+      showError({ msg: '获取手机号失败' })
+    }
+  }
+  catch (error: any) {
+    uni.hideLoading()
+    showError({ msg: error?.message || '获取手机号失败' })
+    console.error('获取手机号出错:', error)
+  }
 }
 
 function handleSubmit() {
@@ -86,19 +136,18 @@ function handleSubmit() {
       <wd-cell-group border>
         <wd-input
           v-model="model.nickname"
-          label="昵称"
+          label="名字"
           label-width="100px"
           prop="value1"
           clearable
-          placeholder="请获取用户名"
-          :rules="[{ required: true, message: '请获取用户名' }]"
-          disabled
+          placeholder="请输入名字"
+          :rules="[{ required: true, message: '请输入名字' }]"
         >
-          <template #suffix>
-            <wd-button size="small" type="primary" open-type="getUserInfo" @getuserinfo="onGetUserInfo">
+          <!-- <template #suffix>
+            <wd-button size="small" type="primary" open-type="getUserInfo" @getuserinfo="getNickname">
               获取昵称
             </wd-button>
-          </template>
+          </template> -->
         </wd-input>
         <wd-input
           v-model="model.phone"
@@ -111,8 +160,8 @@ function handleSubmit() {
           disabled
         >
           <template #suffix>
-            <wd-button size="small" type="primary" open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber">
-              获取号码
+            <wd-button size="small" type="primary" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
+              点击获取号码
             </wd-button>
           </template>
         </wd-input>

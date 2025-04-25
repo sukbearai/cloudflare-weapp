@@ -25,6 +25,13 @@ interface PhoneNumberResponse {
   }
 }
 
+// 定义接口返回值类型
+interface ApiPhoneNumberResponse {
+  phoneNumber: string
+  purePhoneNumber: string
+  countryCode: string
+}
+
 /**
  * 获取用户手机号API
  * 通过微信服务端API解密获取用户手机号
@@ -74,12 +81,14 @@ export default defineEventHandler(async (event) => {
       return createErrorResponse(`错误码: ${data.errcode}, 错误信息: ${data.errmsg}`, 500)
     }
 
-    // 返回手机号数据
-    return createSuccessResponse({
+    // 提取并返回手机号数据，保持与前端类型一致
+    const phoneData: ApiPhoneNumberResponse = {
       phoneNumber: (data as PhoneNumberResponse).phone_info.phoneNumber,
       purePhoneNumber: (data as PhoneNumberResponse).phone_info.purePhoneNumber,
       countryCode: (data as PhoneNumberResponse).phone_info.countryCode,
-    }, '获取手机号成功')
+    }
+
+    return createSuccessResponse(phoneData, '获取手机号成功')
   }
   catch (error) {
     return createErrorResponse(
