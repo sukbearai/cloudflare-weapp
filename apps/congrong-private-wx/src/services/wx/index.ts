@@ -1,4 +1,4 @@
-import type { PhoneNumberResponse } from './types'
+import type { PhoneNumberResponse, WxLoginResponse } from './types'
 import { alovaInstance as request } from '../request'
 
 /**
@@ -15,10 +15,22 @@ export function getPhoneNumber(code: string, openid?: string) {
 }
 
 /**
+ * 微信小程序登录
+ * @param code wx.login获取的code
+ * @returns 登录信息，包含session_key、openid和可能的unionid
+ */
+export function wxLogin(code: string) {
+  return request.Post<WxLoginResponse>('/api/wx-login', {
+    code,
+  })
+}
+
+/**
  * 微信服务相关API
  */
 export function useWxService() {
   return {
     getPhoneNumber,
+    wxLogin,
   }
 }

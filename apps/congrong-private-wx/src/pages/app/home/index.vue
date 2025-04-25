@@ -7,6 +7,21 @@ const deviceId = ref('')
 const infoStore = useInfoStore()
 const wxService = useWxService()
 const { success: showSuccess, error: showError } = useToast()
+const wxLoginInfo = ref<{
+  session_key?: string
+  openid?: string
+  unionid?: string
+}>({})
+
+const model = reactive<{
+  nickname: string
+  phone: string
+}>({
+  nickname: '',
+  phone: '',
+})
+
+const form = ref()
 
 onLoad((query) => {
   const scene = decodeURIComponent(query?.scene)
@@ -23,14 +38,8 @@ onLoad((query) => {
       }
     }
   }
-})
-
-const model = reactive<{
-  nickname: string
-  phone: string
-}>({
-  nickname: '',
-  phone: '',
+  // 页面加载时自动登录微信
+  handleWxLogin()
 })
 
 // 从infoStore读取存储的昵称和手机号
@@ -44,10 +53,46 @@ onShow(() => {
   }
 })
 
-const form = ref()
+// 微信登录
+async function handleWxLogin() {
+  try {
+    // 调用微信登录获取code
+    const loginResult = await new Promise<UniApp.LoginRes>((resolve, reject) => {
+      uni.login({
+        provider: 'weixin',
+        success: (res) => {
+          if (res.code) {
+            resolve(res)
+          }
+          else {
+            reject(new Error('登录失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        },
+      })
+    })
+
+    // 将code发送到后端换取用户信息
+    const wxLoginResult = await wxService.wxLogin(loginResult.code)
+
+    // 保存登录结果
+    wxLoginInfo.value = wxLoginResult
+
+    // 存储openid到本地
+    uni.setStorageSync('openid', wxLoginResult.openid)
+
+    console.log('登录成功，用户信息:', wxLoginResult)
+  }
+  catch (error: any) {
+    showError({ msg: error?.message || '微信登录失败' })
+    console.error('微信登录失败:', error)
+  }
+}
 
 // 获取用户手机号
-async function getPhoneNumber(e: { code: string, errMsg: string }) {
+async function getPhoneNumber(e: any) {
   try {
     if (e.errMsg !== 'getPhoneNumber:ok') {
       showError({ msg: '用户拒绝授权获取手机号' })
@@ -62,8 +107,8 @@ async function getPhoneNumber(e: { code: string, errMsg: string }) {
 
     uni.showLoading({ title: '获取手机号中...' })
 
-    // 调用服务端API获取手机号
-    const res = await wxService.getPhoneNumber(code)
+    // 调用服务端API获取手机号，如果有openid可以一并传递
+    const res = await wxService.getPhoneNumber(code, wxLoginInfo.value.openid)
 
     uni.hideLoading()
 
@@ -76,13 +121,9 @@ async function getPhoneNumber(e: { code: string, errMsg: string }) {
       infoStore.setPhoneNumber(phone)
       showSuccess({ msg: '获取手机号成功' })
     }
-    // else {
-    //   showError({ msg: '获取手机号失败' })
-    // }
   }
   catch (error: any) {
     uni.hideLoading()
-    // showError({ msg: error?.message || '获取手机号失败' })
     console.error('获取手机号出错:', error)
   }
 }
@@ -90,8 +131,7 @@ async function getPhoneNumber(e: { code: string, errMsg: string }) {
 function handleSubmit() {
   form.value
     .validate()
-    .then(({ valid, errors }: { valid: unknown, errors: unknown }) => {
-      console.log(valid, errors)
+    .then(async ({ valid, errors }: { valid: unknown, errors: unknown }) => {
       if (valid) {
         // 提交时同时保存到store
         infoStore.setUserInfo({
