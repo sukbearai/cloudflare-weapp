@@ -76,13 +76,13 @@ async function getPhoneNumber(e: { code: string, errMsg: string }) {
       infoStore.setPhoneNumber(phone)
       showSuccess({ msg: '获取手机号成功' })
     }
-    else {
-      showError({ msg: '获取手机号失败' })
-    }
+    // else {
+    //   showError({ msg: '获取手机号失败' })
+    // }
   }
   catch (error: any) {
     uni.hideLoading()
-    showError({ msg: error?.message || '获取手机号失败' })
+    // showError({ msg: error?.message || '获取手机号失败' })
     console.error('获取手机号出错:', error)
   }
 }
