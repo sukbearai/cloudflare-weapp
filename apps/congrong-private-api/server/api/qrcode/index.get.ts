@@ -68,6 +68,7 @@ export default defineEventHandler(async (event) => {
 
     const requestData = {
       scene: `device_id=${validatedData.device_id}`,
+      page: 'pages/app/home/index',
       check_path: false,
       width: validatedData.width,
     }
