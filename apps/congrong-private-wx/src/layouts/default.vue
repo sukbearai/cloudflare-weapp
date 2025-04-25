@@ -31,6 +31,16 @@ function handleChange({ value: index }: { value: number }) {
     uni.reLaunch({ url })
   }
 }
+
+onMounted(() => {
+  // #ifdef MP-WEIXIN
+  wx.setPageStyle({
+    style: {
+      overflow: 'hidden',
+    },
+  })
+  // #endif
+})
 </script>
 
 <template>
