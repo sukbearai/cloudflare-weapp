@@ -1,27 +1,17 @@
 <script lang="ts" setup>
+import { useThirdPartyService } from '@/services/thirdparty'
 import { useWxService } from '@/services/wx'
 import { useInfoStore } from '@/stores/useInfo'
+import { useWxStore } from '@/stores/useWxStore'
 import { useToast } from 'wot-design-uni'
 
 const deviceId = ref('')
 const infoStore = useInfoStore()
 const wxService = useWxService()
-const { success: showSuccess, error: showError } = useToast()
-const wxLoginInfo = ref<{
-  session_key?: string
-  openid?: string
-  unionid?: string
-}>({})
-
-const model = reactive<{
-  nickname: string
-  phone: string
-}>({
-  nickname: '',
-  phone: '',
-})
-
-const form = ref()
+const wxStore = useWxStore()
+const thirdPartyService = useThirdPartyService()
+const { success: showSuccess, error: showError, loading: showLoading, close: closeLoading } = useToast()
+const submitting = ref(false)
 
 onLoad((query) => {
   const scene = decodeURIComponent(query?.scene)
@@ -53,9 +43,24 @@ onShow(() => {
   }
 })
 
+const model = reactive<{
+  nickname: string
+  phone: string
+}>({
+  nickname: '',
+  phone: '',
+})
+
+const form = ref()
+
 // 微信登录
 async function handleWxLogin() {
   try {
+    // 如果已经有openid，则不再重复登录
+    if (wxStore.loginInfo.openid) {
+      return
+    }
+
     // 调用微信登录获取code
     const loginResult = await new Promise<UniApp.LoginRes>((resolve, reject) => {
       uni.login({
@@ -77,13 +82,8 @@ async function handleWxLogin() {
     // 将code发送到后端换取用户信息
     const wxLoginResult = await wxService.wxLogin(loginResult.code)
 
-    // 保存登录结果
-    wxLoginInfo.value = wxLoginResult
-
-    // 存储openid到本地
-    uni.setStorageSync('openid', wxLoginResult.openid)
-
-    console.log('登录成功，用户信息:', wxLoginResult)
+    // 保存登录结果到store中
+    wxStore.setLoginInfo(wxLoginResult)
   }
   catch (error: any) {
     showError({ msg: error?.message || '微信登录失败' })
@@ -108,7 +108,7 @@ async function getPhoneNumber(e: any) {
     uni.showLoading({ title: '获取手机号中...' })
 
     // 调用服务端API获取手机号，如果有openid可以一并传递
-    const res = await wxService.getPhoneNumber(code, wxLoginInfo.value.openid)
+    const res = await wxService.getPhoneNumber(code, wxStore.getOpenid())
 
     uni.hideLoading()
 
@@ -128,20 +128,61 @@ async function getPhoneNumber(e: any) {
   }
 }
 
-function handleSubmit() {
+async function handleSubmit() {
+  if (submitting.value) {
+    return
+  }
+
   form.value
     .validate()
     .then(async ({ valid, errors }: { valid: unknown, errors: unknown }) => {
       if (valid) {
-        // 提交时同时保存到store
-        infoStore.setUserInfo({
-          nickname: model.nickname,
-          phoneNumber: model.phone,
-        })
+        try {
+          submitting.value = true
 
-        showSuccess({
-          msg: '提交成功，信息已保存',
-        })
+          // 保存到store中
+          infoStore.setUserInfo({
+            nickname: model.nickname,
+            phoneNumber: model.phone,
+          })
+
+          // 检查是否有必要的数据用于提交表单
+          const openid = wxStore.getOpenid()
+          if (!openid) {
+            showError({ msg: '未获取到微信登录信息，请重新进入小程序' })
+            return
+          }
+
+          if (!deviceId.value) {
+            showError({ msg: '未检测到设备ID，请扫描设备二维码进入' })
+            return
+          }
+
+          // 显示加载提示
+          showLoading({ msg: '提交中...' })
+
+          // 提交表单到第三方接口
+          await thirdPartyService.submitHuatuoForm({
+            deviceId: deviceId.value,
+            name: model.nickname,
+            mobile: model.phone,
+            openId: openid,
+            unionId: wxStore.loginInfo.unionid || openid, // 如果没有unionid则使用openid
+          })
+
+          closeLoading()
+
+          showSuccess({ msg: '表单提交成功' })
+          // 这里可以添加提交成功后的跳转
+          // uni.redirectTo({ url: '/pages/app/result/index' })
+        }
+        catch (error: any) {
+          console.error('表单提交失败:', error)
+          showError({ msg: error?.message || '表单提交失败，请重试' })
+        }
+        finally {
+          submitting.value = false
+        }
       }
       else {
         console.log(errors, 'validation errors')
@@ -149,6 +190,7 @@ function handleSubmit() {
     })
     .catch((error: unknown) => {
       console.log(error, 'error')
+      submitting.value = false
     })
 }
 </script>
