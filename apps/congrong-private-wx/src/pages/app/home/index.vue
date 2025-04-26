@@ -197,7 +197,7 @@ async function handleSubmit() {
         <wd-input
           v-model="model.nickname"
           label="名字"
-          label-width="100px"
+          label-width="60px"
           prop="nickname"
           clearable
           placeholder="请输入名字"
@@ -212,7 +212,7 @@ async function handleSubmit() {
         <wd-input
           v-model="model.phone"
           label="手机号"
-          label-width="100px"
+          label-width="60px"
           prop="phone"
           clearable
           placeholder="请获取手机号"
