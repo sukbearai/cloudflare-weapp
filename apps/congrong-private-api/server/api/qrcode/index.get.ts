@@ -1,4 +1,4 @@
-import type { WechatApiError } from '../../../types'
+import type { WechatApiError } from '~~/types'
 import { Buffer } from 'node:buffer'
 import { z } from 'zod'
 

@@ -28,6 +28,12 @@ export default defineNitroConfig({
     appId: process.env.appId,
     appSecret: process.env.appSecret,
     jwtSecret: process.env.jwtSecret,
+    telegram: {
+      botToken: process.env.botToken,
+      proxyUrl: process.env.proxyUrl,
+      authToken: process.env.authToken,
+      tunnelUrl: process.env.tunnelUrl,
+    },
   },
 
   preset: 'cloudflare_module',

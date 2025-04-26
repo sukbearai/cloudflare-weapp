@@ -10,9 +10,11 @@
   "devDependencies": {
     "drizzle-kit": "^0.30.6",
     "drizzle-orm": "^0.41.0",
+    "grammy": "^1.36.1",
     "jose": "^6.0.10",
     "nitro-cloudflare-dev": "^0.2.2",
     "nitropack": "latest",
+    "socks-proxy-agent": "^8.0.5",
     "wrangler": "^4.7.0",
     "zod": "^3.24.2"
   }
