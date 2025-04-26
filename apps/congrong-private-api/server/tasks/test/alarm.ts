@@ -3,8 +3,8 @@ export default defineTask({
     name: 'test:alarm',
     description: 'Alarm task',
   },
-  run() {
-    bot.api.sendMessage('-1002663808019', `定时消息测试 time: ${new Date().toLocaleString()}`)
+  async run() {
+    await bot.api.sendMessage('-1002663808019', `定时消息测试 time: ${new Date().toLocaleString()}`)
     return { result: 'ok' }
   },
 })
