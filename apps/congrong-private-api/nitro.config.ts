@@ -6,6 +6,15 @@ export default defineNitroConfig({
   modules: [nitroCloudflareBindings],
   srcDir: 'server',
 
+  experimental: {
+    tasks: true,
+  },
+
+  scheduledTasks: {
+    // Run `cms:update` task every minute
+    '* * * * *': ['test:alarm'],
+  },
+
   // routeRules: {
   //   '/api/**': { cors: true, headers: { 'access-control-allow-methods': 'POST, GET, OPTIONS' } },
   // },
