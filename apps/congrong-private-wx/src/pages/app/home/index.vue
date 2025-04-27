@@ -53,6 +53,13 @@ const model = reactive<{
 
 const form = ref()
 
+function handleCheckReport() {
+  const unionId = `${wxStore.loginInfo.appid}_${wxStore.getOpenid()}`
+  const url = encodeURIComponent(`https://www.maixiangjk.com/huatuo/wechat/mp/getReportList?appId=${wxStore.loginInfo.appid}&unionId=${unionId}&openId=${wxStore.getOpenid()}`)
+  // 这里可以添加提交成功后的跳转
+  uni.navigateTo({ url: `/pages/common/webview/index?url=${url}` })
+}
+
 // 微信登录
 async function handleWxLogin() {
   try {
@@ -230,7 +237,12 @@ async function handleSubmit() {
         </wd-input>
       </wd-cell-group>
       <view class="px-4 py-10 text-center text-xs text-gray-400">
-        <view>设备编号：{{ deviceId || '未检测到' }}</view>
+        <view>
+          <view>设备编号：{{ deviceId || '未检测到' }}</view>
+          <wd-button type="text" size="small" @click="handleCheckReport">
+            点击查看历史报告
+          </wd-button>
+        </view>
         <view>您提供的信息仅用于生成体质识别报告</view>
         <wd-button custom-class="mt-2 " type="primary" size="large" block @click="handleSubmit">
           提交
