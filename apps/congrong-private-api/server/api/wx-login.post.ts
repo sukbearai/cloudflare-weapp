@@ -14,6 +14,7 @@ interface WxLoginResponse {
   session_key: string
   unionid?: string
   openid: string
+  appid: string
 }
 
 /**
@@ -70,17 +71,12 @@ export default defineEventHandler(async (event) => {
     // 获取用户信息（如果需要可以查询数据库）
     const wxLoginData = data as WxLoginResponse
 
-    // 处理用户信息
-    // 这里可以添加额外的逻辑，例如：
-    // 1. 检查数据库中是否存在该openid的用户
-    // 2. 不存在则创建新用户
-    // 3. 生成JWT令牌等
-
     // 返回微信登录结果
     return createSuccessResponse({
       session_key: wxLoginData.session_key,
       openid: wxLoginData.openid,
       unionid: wxLoginData.unionid,
+      appid: appId,
     }, '微信登录成功')
   }
   catch (error) {
