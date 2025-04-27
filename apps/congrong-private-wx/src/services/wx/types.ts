@@ -36,4 +36,9 @@ export interface WxLoginResponse {
    * 用户在开放平台的唯一标识符(如果小程序已绑定到微信开放平台)
    */
   unionid?: string
+
+  /**
+   * 小程序 appid
+   */
+  appid?: string
 }

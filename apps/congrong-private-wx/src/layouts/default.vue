@@ -11,7 +11,7 @@ defineOptions({
 })
 
 const themeVars = reactive<ConfigProviderThemeVars>({
-  colorTheme: '#3F79FE',
+  colorTheme: '#00DFBF',
   tabsNavLineBgColor: 'red',
 })
 

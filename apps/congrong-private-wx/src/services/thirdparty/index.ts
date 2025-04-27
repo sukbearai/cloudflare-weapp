@@ -2,7 +2,7 @@ import type { HuatuoSubmitRequest, HuatuoSubmitResponse } from './types'
 import { alovaInstance as request } from '../request'
 
 // 花图第三方服务的应用代码
-const HUATUO_APP_CODE = 'HUATUO_WEAPP_CODE'
+const HUATUO_APP_CODE = 'congrong_wx_applet'
 
 /**
  * 提交花图表单数据

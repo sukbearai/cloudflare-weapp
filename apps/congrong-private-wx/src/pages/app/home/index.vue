@@ -155,21 +155,24 @@ async function handleSubmit() {
 
           // 显示加载提示
           // showLoading({ msg: '提交中...' })
-
+          const unionId = `${wxStore.loginInfo.appid}_${openid}` // appid_openid 拼接
           // 提交表单到第三方接口
           await thirdPartyService.submitHuatuoForm({
             deviceId: deviceId.value,
             name: model.nickname,
             mobile: model.phone,
             openId: openid,
-            unionId: wxStore.loginInfo.unionid || openid, // 如果没有unionid则使用openid
+            unionId,
           })
 
           // closeLoading()
 
-          showSuccess({ msg: '表单提交成功' })
-          // 这里可以添加提交成功后的跳转
-          // uni.redirectTo({ url: '/pages/app/result/index' })
+          showSuccess({ msg: '表单提交成功', duration: 3000, closed: () => {
+            // 提交成功后跳转到报告列表页面
+            const url = encodeURIComponent(`https://www.maixiangjk.com/huatuo/wechat/mp/getReportList?appId=${wxStore.loginInfo.appid}&unionId=${unionId}&openId=${openid}`)
+            // 这里可以添加提交成功后的跳转
+            uni.navigateTo({ url: `/pages/common/webview/index?url=${url}` })
+          } })
         }
         catch (error: any) {
           console.error('表单提交失败:', error)
@@ -228,7 +231,7 @@ async function handleSubmit() {
       </wd-cell-group>
       <view class="px-4 py-10 text-center text-xs text-gray-400">
         <view>设备编号：{{ deviceId || '未检测到' }}</view>
-        <view>您提供的信息仅用于生成个性化检查报告</view>
+        <view>您提供的信息仅用于生成体质识别报告</view>
         <wd-button custom-class="mt-2 " type="primary" size="large" block @click="handleSubmit">
           提交
         </wd-button>
