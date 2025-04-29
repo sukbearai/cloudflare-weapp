@@ -43,6 +43,16 @@ export default defineNitroConfig({
       authToken: process.env.authToken,
       tunnelUrl: process.env.tunnelUrl,
     },
+    bybit: {
+      apiKey: process.env.bybitApiKey,
+      secretKey: process.env.bybitSecretKey,
+      url: process.env.bybitApiUrl,
+    },
+    binance: {
+      apiKey: process.env.binanceApiKey,
+      secretKey: process.env.binanceSecretKey,
+      url: process.env.binanceApiUrl,
+    },
   },
 
   preset: 'cloudflare_module',
