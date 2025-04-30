@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const cachedToken = await storage.getItem(CACHE_KEY) as { access_token: string, expireTime: number } | null
 
     // 如果缓存存在且未过期，使用缓存的 token
-    if (cachedToken && typeof cachedToken.expireTime === 'number' && cachedToken.expireTime > Date.now()) {
+    if (cachedToken && cachedToken.expireTime > Date.now()) {
       // 将 token 信息存入 event.context
       event.context.wechatToken = {
         access_token: cachedToken.access_token,
