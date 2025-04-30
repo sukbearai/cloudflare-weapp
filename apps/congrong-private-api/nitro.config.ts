@@ -46,12 +46,12 @@ export default defineNitroConfig({
     bybit: {
       apiKey: process.env.bybitApiKey,
       secretKey: process.env.bybitSecretKey,
-      url: process.env.bybitApiUrl,
+      bybitApiUrl: process.env.bybitApiUrl,
     },
     binance: {
       apiKey: process.env.binanceApiKey,
       secretKey: process.env.binanceSecretKey,
-      url: process.env.binanceApiUrl,
+      binanceApiUrl: process.env.binanceApiUrl,
     },
   },
 

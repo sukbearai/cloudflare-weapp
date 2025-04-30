@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 
     // 获取配置信息
     const config = useRuntimeConfig()
-    const binanceApiUrl = config.binance?.url
+    const binanceApiUrl = config.binance?.binanceApiUrl
 
     // 构建请求URL
     let url = `${binanceApiUrl}/futures/data/topLongShortAccountRatio?symbol=${symbol}&period=${period}&limit=${limit}`
