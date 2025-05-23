@@ -15,9 +15,14 @@ export default defineNitroConfig({
     // '* * * * *': ['test:alarm'],
   },
 
-  // routeRules: {
-  //   '/api/**': { cors: true, headers: { 'access-control-allow-methods': 'POST, GET, OPTIONS' } },
-  // },
+  routeRules: {
+    '/api/**': {
+      cors: true,
+      headers: {
+        'access-control-allow-methods': 'POST, GET, OPTIONS',
+      },
+    },
+  },
 
   storage: {
     db: {
