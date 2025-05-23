@@ -16,7 +16,7 @@ export default defineNitroConfig({
   },
 
   routeRules: {
-    '/api/**': {
+    '/api/upload/**': {
       cors: true,
       headers: {
         'access-control-allow-methods': 'POST, GET, OPTIONS',
