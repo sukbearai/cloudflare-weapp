@@ -49,7 +49,13 @@ export default defineEventHandler(async (event) => {
     }
 
     // 返回成功响应
-    return createSuccessResponse(productInfo, '获取产品信息成功')
+    // return createSuccessResponse(productInfo, '获取产品信息成功')
+    return {
+      code: 200,
+      message: '产品信息更新成功',
+      data: productInfo,
+      timestamp: Date.now(),
+    }
   }
   catch (error) {
     return createErrorResponse(

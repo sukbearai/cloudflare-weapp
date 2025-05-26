@@ -57,13 +57,7 @@ export default defineEventHandler(async (event) => {
     await storage.setItem(storageKey, productInfo)
 
     // 返回成功响应
-    // return createSuccessResponse(productInfo, '产品信息更新成功')
-    return {
-      code: 200,
-      message: '产品信息更新成功',
-      data: productInfo,
-      timestamp: Date.now(),
-    }
+    return createSuccessResponse(productInfo, '产品信息更新成功')
   }
   catch (error) {
     return createErrorResponse(
