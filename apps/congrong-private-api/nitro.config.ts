@@ -22,6 +22,12 @@ export default defineNitroConfig({
         'access-control-allow-methods': 'POST, GET, OPTIONS',
       },
     },
+    '/api/device/**': {
+      cors: true,
+      headers: {
+        'access-control-allow-methods': 'POST, GET, OPTIONS',
+      },
+    },
   },
 
   storage: {
