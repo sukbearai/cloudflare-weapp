@@ -34,12 +34,14 @@ export default defineEventHandler(async (event) => {
     const secretKey = new TextEncoder().encode(jwtSecret)
     const { payload } = await jose.jwtVerify(token, secretKey)
 
+    // eslint-disable-next-line no-console
+    console.log(payload, 'payload')
+
     const userId = payload.user_id as number
     if (!userId) {
       return createErrorResponse('无效的令牌内容', 401)
     }
 
-    // 将用户ID添加到请求上下文
     event.context.userId = userId
 
     // 查询用户信息
