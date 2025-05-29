@@ -7,10 +7,11 @@ export default defineEventHandler(async (event) => {
   try {
     // 从请求上下文获取用户信息（由JWT中间件设置）
     const user = event.context.user
+    const config = useRuntimeConfig()
 
     // 检查用户信息是否存在
     if (!user) {
-      return createErrorResponse(`用户信息不存在 ${event.context.userId}`, 404)
+      return createErrorResponse(`用户信息不存在-${event.context.userId}-${config.jwtSecret}`, 404)
     }
 
     // 解析 deviceIds 字段（如果存在）
