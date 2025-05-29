@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
     // 检查用户信息是否存在
     if (!user) {
-      return createErrorResponse('用户信息不存在', 404)
+      return createErrorResponse(`用户信息不存在 ${event.context.userId}`, 404)
     }
 
     // 解析 deviceIds 字段（如果存在）
