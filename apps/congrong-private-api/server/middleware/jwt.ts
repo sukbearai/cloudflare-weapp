@@ -13,7 +13,15 @@ export default defineEventHandler(async (event) => {
   const { jwtSecret } = useRuntimeConfig()
 
   // 不需要认证的API路径
-  const publicPaths = ['/api/user', '/api/device', '/api/qrcode', '/api/phone', '/api/wx-login', '/api/thirdparty']
+  const publicPaths = [
+    '/api/device',
+    '/api/qrcode',
+    '/api/thirdparty',
+    '/api/upload',
+    '/api/user/login',
+    '/api/phone',
+    '/api/wx-login',
+  ]
 
   // 如果是公共路径或OPTIONS请求，跳过认证
   if (publicPaths.some(path => event.path.startsWith(path)) || event.method === 'OPTIONS') {
