@@ -64,7 +64,8 @@ export default defineEventHandler(async (event) => {
     // 处理用户数据，解析 deviceIds
     const userList = users.map(user => ({
       ...user,
-      deviceIds: user.deviceIds ? JSON.parse(user.deviceIds) : [],
+      // 不再需要解析 JSON
+      deviceIds: user.deviceIds || '',
     }))
 
     // 构建分页信息

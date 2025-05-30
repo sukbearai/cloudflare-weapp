@@ -4,7 +4,7 @@ const createUserSchema = z.object({
   phone: z.string().min(11).max(11).regex(/^1[3-9]\d{9}$/, '请输入有效的手机号'),
   password: z.string().min(6, '密码至少6位').max(50, '密码不超过50位').optional(),
   role: z.string().default('user'),
-  deviceIds: z.array(z.string()).default([]),
+  deviceIds: z.string().optional(),
 })
 
 /**
@@ -44,14 +44,14 @@ export default defineEventHandler(async (event) => {
         phone,
         password,
         role,
-        deviceIds: JSON.stringify(deviceIds),
+        deviceIds: deviceIds || '',
       })
       .returning()
 
     // 返回创建的用户信息（不包含密码）
     const userInfo = {
       ...newUser[0],
-      deviceIds: JSON.parse(newUser[0].deviceIds || '[]'),
+      deviceIds: newUser[0].deviceIds || '',
       password: undefined, // 不返回密码
     }
 

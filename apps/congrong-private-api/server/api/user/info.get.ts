@@ -13,10 +13,11 @@ export default defineEventHandler(async (event) => {
       return createErrorResponse(`用户信息不存在-${event.context.userId}`, 404)
     }
 
-    // 解析 deviceIds 字段（如果存在）
+    // 修改返回用户信息部分
     const userInfo = {
       ...user,
-      deviceIds: user.deviceIds ? JSON.parse(user.deviceIds) : [],
+      // 不再需要解析 JSON
+      deviceIds: user.deviceIds || '',
     }
 
     return createSuccessResponse(userInfo, '获取用户信息成功')

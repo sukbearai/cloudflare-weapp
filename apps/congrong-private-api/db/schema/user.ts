@@ -6,5 +6,5 @@ export const usersTable = sqliteTable('users_table', {
   phone: text().notNull(),
   password: text(),
   role: text().default('user'),
-  deviceIds: text().default('[]'),
+  deviceIds: text(),
 })
