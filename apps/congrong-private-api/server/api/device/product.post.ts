@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     const storage = useStorage('db')
 
     // 获取所有产品信息的键
-    const keys = await storage.getKeys(`device:product:*`)
+    const keys = await storage.getKeys(`device:product:`)
 
     // 将夹杂体质转换为逗号分隔的格式，便于匹配
     const physiqueArray = physique.split('夹').filter(p => p.trim())
