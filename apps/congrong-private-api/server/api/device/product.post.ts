@@ -38,6 +38,10 @@ export default defineEventHandler(async (event) => {
 
     const { deviceId, physique } = validationResult.data
 
+    if (!physique) {
+      return createErrorResponse('体质不能为空', 400)
+    }
+
     // 使用存储服务
     const storage = useStorage('db')
 
