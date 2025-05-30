@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
   const authorization = getHeader(event, 'Authorization')
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return createErrorResponse('未提供认证令牌', 401)
+    return createErrorResponse(`未提供认证令牌-${event.path}`, 401)
   }
 
   try {
