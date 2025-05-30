@@ -68,15 +68,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // 返回成功响应
-    return {
-      code: 200,
-      message: '产品发布记录获取成功',
-      data: {
-        list: productList,
-        pagination,
-      },
-      timestamp: Date.now(),
-    }
+    return createSuccessResponse({
+      list: productList,
+      pagination,
+    }, '产品发布记录获取成功')
   }
   catch (error) {
     return createErrorResponse(

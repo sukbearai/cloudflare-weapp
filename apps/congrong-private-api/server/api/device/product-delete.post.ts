@@ -36,12 +36,7 @@ export default defineEventHandler(async (event) => {
     await storage.removeItem(key)
 
     // 返回成功响应
-    return {
-      code: 200,
-      message: '产品记录删除成功',
-      data: { key },
-      timestamp: Date.now(),
-    }
+    return createSuccessResponse({ key }, '产品记录删除成功')
   }
   catch (error) {
     return createErrorResponse(
