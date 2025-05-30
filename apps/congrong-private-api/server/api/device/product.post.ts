@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
     const physiqueArray = physique.split('夹').filter(p => p.trim())
 
     let productInfo: ProductInfo | null = null
+    let bestMatchScore = -1 // 用于跟踪最佳匹配的分数
 
     // 遍历所有键，查找匹配的产品信息
     for (const key of keys) {
@@ -67,26 +68,33 @@ export default defineEventHandler(async (event) => {
         storedConstitutions.includes(p),
       )
 
-      // 情况2: 部分匹配 - 用户的至少一个体质在存储的体质列表中
-      const anyPhysiqueMatched = physiqueArray.some(p =>
-        storedConstitutions.includes(p),
-      )
-
-      // 优先使用完全匹配的结果
       if (allPhysiqueMatched) {
-        productInfo = item
-        break
-      }
+        // 计算匹配分数 - 越接近用户体质数量的匹配越好
+        // 例如：用户体质为["阴虚"]，存储体质为["阴虚"]比["阴虚","阳虚"]更精确
+        const matchScore = physiqueArray.length / storedConstitutions.length
 
-      // 如果没有完全匹配但有部分匹配，暂存结果（继续查找可能有更好的匹配）
-      if (!productInfo && anyPhysiqueMatched) {
-        productInfo = item
+        // 如果找到更好的匹配，更新产品信息
+        if (matchScore > bestMatchScore) {
+          bestMatchScore = matchScore
+          productInfo = item
+        }
+      }
+      else {
+        // 情况2: 部分匹配 - 用户的至少一个体质在存储的体质列表中
+        const anyPhysiqueMatched = physiqueArray.some(p =>
+          storedConstitutions.includes(p),
+        )
+
+        // 如果没有找到完全匹配但有部分匹配，暂存结果
+        if (bestMatchScore < 0 && anyPhysiqueMatched) {
+          productInfo = item
+        }
       }
     }
 
     if (!productInfo) {
       // 如果没有找到产品信息，返回错误
-      return createErrorResponse(`未找到匹配的产品信息,${keys.length}`, 404)
+      return createErrorResponse(`未找到匹配的产品信息`, 404)
     }
 
     // 返回成功响应
