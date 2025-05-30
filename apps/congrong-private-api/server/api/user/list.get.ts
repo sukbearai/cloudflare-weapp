@@ -54,6 +54,7 @@ export default defineEventHandler(async (event) => {
         phone: usersTable.phone,
         role: usersTable.role,
         deviceIds: usersTable.deviceIds,
+        password: usersTable.password,
       })
       .from(usersTable)
       .where(whereCondition)
