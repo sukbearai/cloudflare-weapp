@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 删除记录
-    await storage.removeItem(key)
+    await storage.removeItem(key, { removeMeta: true })
 
     // 返回成功响应
     return createSuccessResponse({ key }, '产品记录删除成功')
