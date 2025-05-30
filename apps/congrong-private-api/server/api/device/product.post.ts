@@ -1,9 +1,11 @@
-import { z } from 'zod'
-
-// 定义请求验证模式，所有字段都是可选的
+// 定义请求验证模式，deviceId和physique为必填项
 const productQuerySchema = z.object({
-  deviceId: z.string().optional(),
-  physique: z.string().optional(),
+  deviceId: z.string({
+    required_error: '设备ID不能为空',
+  }),
+  physique: z.string({
+    required_error: '体质不能为空',
+  }), // 支持单个体质或夹杂体质,如：阴虚夹气虚夹湿热
   healthLevel: z.string().optional(),
   tenantId: z.string().optional(),
 })
@@ -14,11 +16,13 @@ interface ProductInfo {
   content: string
   checkedImg: string
   uncheckedImg: string
+  deviceIds: string
+  constitutions: string
 }
 
 /**
  * 查询设备产品信息API
- * 根据设备ID、体质、健康等级和租户ID查询产品信息
+ * 根据设备ID、体质查询产品信息
  * 使用: POST /api/device/product
  */
 export default defineEventHandler(async (event) => {
@@ -32,24 +36,60 @@ export default defineEventHandler(async (event) => {
       return createErrorResponse(errorMessages, 400)
     }
 
-    const { deviceId = '', physique = '', healthLevel = '', tenantId = '' } = validationResult.data
+    const { deviceId, physique } = validationResult.data
 
     // 使用存储服务
     const storage = useStorage('db')
 
-    // 构建存储键
-    const storageKey = `device:product:${tenantId}:${deviceId}:${physique}:${healthLevel}`
+    // 获取所有产品信息的键
+    const keys = await storage.getKeys(`device:product:*`)
 
-    // 从存储中获取产品信息
-    const productInfo = await storage.getItem(storageKey) as ProductInfo | null
+    // 将夹杂体质转换为逗号分隔的格式，便于匹配
+    const physiqueArray = physique.split('夹').filter(p => p.trim())
+
+    let productInfo: ProductInfo | null = null
+
+    // 遍历所有键，查找匹配的产品信息
+    for (const key of keys) {
+      const item = await storage.getItem(key) as ProductInfo | null
+
+      if (!item || !item.deviceIds || !item.constitutions) { continue }
+
+      // 检查设备ID是否匹配
+      const storedDeviceIds = item.deviceIds.split(',')
+      if (!storedDeviceIds.includes(deviceId)) { continue }
+
+      // 检查体质是否匹配
+      const storedConstitutions = item.constitutions.split(',')
+
+      // 情况1: 完全匹配 - 用户的所有体质都在存储的体质列表中
+      const allPhysiqueMatched = physiqueArray.every(p =>
+        storedConstitutions.includes(p),
+      )
+
+      // 情况2: 部分匹配 - 用户的至少一个体质在存储的体质列表中
+      const anyPhysiqueMatched = physiqueArray.some(p =>
+        storedConstitutions.includes(p),
+      )
+
+      // 优先使用完全匹配的结果
+      if (allPhysiqueMatched) {
+        productInfo = item
+        break
+      }
+
+      // 如果没有完全匹配但有部分匹配，暂存结果（继续查找可能有更好的匹配）
+      if (!productInfo && anyPhysiqueMatched) {
+        productInfo = item
+      }
+    }
 
     if (!productInfo) {
-      // 如果没有找到产品信息，返回默认值或错误
+      // 如果没有找到产品信息，返回错误
       return createErrorResponse('未找到匹配的产品信息', 404)
     }
 
     // 返回成功响应
-    // return createSuccessResponse(productInfo, '获取产品信息成功')
     return {
       code: 200,
       message: '产品信息获取成功',

@@ -1,11 +1,7 @@
-import { z } from 'zod'
-
-// 定义请求验证模式，所有字段都是可选的
+// 定义请求验证模式，更新字段定义
 const productUpdateSchema = z.object({
-  deviceId: z.string().optional(),
-  physique: z.string().optional(),
-  healthLevel: z.string().optional(),
-  tenantId: z.string().optional(),
+  deviceIds: z.string().optional(), // 多个设备ID，如："sn1001,sn1002,sn1003"
+  constitutions: z.string().optional(), // 改为字符串形式的体质列表，如："阴虚,阳虚"
   title: z.string().optional(),
   content: z.string().optional(),
   checkedImg: z.string().optional(),
@@ -14,7 +10,6 @@ const productUpdateSchema = z.object({
 
 /**
  * 更新设备产品信息API
- * 根据设备ID、体质、健康等级和租户ID更新产品信息
  * 使用: POST /api/device/product-update
  */
 export default defineEventHandler(async (event) => {
@@ -29,21 +24,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const {
-      deviceId = '',
-      physique = '',
-      healthLevel = '',
-      tenantId = '',
+      deviceIds = '',
+      constitutions = '',
       title = '',
       content = '',
       checkedImg = '',
       uncheckedImg = '',
     } = validationResult.data
-
-    // 使用存储服务
-    const storage = useStorage('db')
-
-    // 构建存储键
-    const storageKey = `device:product:${tenantId}:${deviceId}:${physique}:${healthLevel}`
 
     // 构建产品信息对象
     const productInfo = {
@@ -51,9 +38,15 @@ export default defineEventHandler(async (event) => {
       content,
       checkedImg,
       uncheckedImg,
+      constitutions,
+      deviceIds,
     }
 
-    // 保存到存储中
+    // 使用存储服务
+    const storage = useStorage('db')
+
+    // 直接使用设备ID和体质组合生成存储键
+    const storageKey = `device:product:${deviceIds}:${constitutions}`
     await storage.setItem(storageKey, productInfo)
 
     // 返回成功响应
