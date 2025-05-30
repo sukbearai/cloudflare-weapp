@@ -86,7 +86,7 @@ export default defineEventHandler(async (event) => {
 
     if (!productInfo) {
       // 如果没有找到产品信息，返回错误
-      return createErrorResponse(`未找到匹配的产品信息,${JSON.stringify(keys)}`, 404)
+      return createErrorResponse(`未找到匹配的产品信息,${keys.length}`, 404)
     }
 
     // 返回成功响应
